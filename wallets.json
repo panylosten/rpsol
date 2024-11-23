@@ -1,0 +1,18 @@
+{
+  "panylosten": {
+    "publicKey": "B3R47JYBWjKTmTzwWsYr2wnCh6pfumvedBqXrLGjx4fj",
+    "secretKey": "221NkZoKQQ6sNciC5FgpNcRZDctjypmW5ujhX2qNEibrcGQ6Yam8K6RZahFoqhf5My8Ab5iGvhXPRTbqDna42hrR"
+  },
+  "sfasa": {
+    "publicKey": "31DFWTsJKAYu8ViSYdkEMgVd4EeF9jw1joHPUWcLJg9o",
+    "secretKey": "3EGgK8Mc9mTqPVz2vp1Jo3EZDAaJqmJy8W37KfsndcUVxB9RfQPhwcjmNWs5RMf4fWPZ5de9g9Z65XhK1FTyZiuf"
+  },
+  "mama": {
+    "publicKey": "Fb3jtZAFLMeTpQo5wxSNCTL6U8EV3A86QC4VX1dfWxSB",
+    "secretKey": "2cf76dCiLaXKLXkd24e1aw35SiM2KdNxNqMrG9sMvu1qvd4okwYGirtByDTvWduVshrQy3LUto5VosNsxhnajEk7"
+  },
+  "tata": {
+    "publicKey": "CNG5ShaaWDGDSVVeMfz3MmGStAENKAFxtzxFjns4FMhg",
+    "secretKey": "39SuiA918gWZRJAedTdFBWMAjLgjMgXhUj5U9K2yeEN5SW4SVotRASW9NHzYdtePkzhsxhL8DRrDQwo5TWHZpSfp"
+  }
+}

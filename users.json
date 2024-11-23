@@ -1,0 +1,10 @@
+{
+  "mama": {
+    "username": "mama",
+    "password": "$2b$10$56oISs5J1pveeSL5KrHgFeQErq81QwmMzzJUuCUCvv9bJDQzq3iFy"
+  },
+  "tata": {
+    "username": "tata",
+    "password": "$2b$10$5EYN8bhyfWNGIEcbDMKMQuGO6RseMeiud7HQm1zxKmIWCbFmYIU/i"
+  }
+}

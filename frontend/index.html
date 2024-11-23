@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Solana Wallet Manager</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-color: #f4f4f9;
+        }
+
+        .header {
+            width: 100%;
+            background-color: #6200ea;
+            padding: 10px 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: fixed;
+            top: 0;
+            left: 0;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+        }
+
+        .header .menu button {
+            margin: 0 10px;
+            background-color: white;
+            color: #6200ea;
+            font-size: 16px;
+            font-weight: bold;
+            padding: 10px 20px;
+            border: 2px solid #6200ea;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        .content {
+            margin-top: 80px;
+            width: 100%;
+            max-width: 800px;
+            padding: 20px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        button {
+            margin-top: 10px;
+            padding: 10px;
+            background-color: #6200ea;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #3700b3;
+        }
+
+        input {
+            margin-top: 10px;
+            padding: 10px;
+            width: 100%;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <button id="registerMenu">Register</button>
+        <button id="loginMenu">Login</button>
+        <button id="walletMenu">View Wallet</button>
+        <button id="rpsMenu">Rock Paper Scissors</button>
+    </div>
+
+    <div class="content" id="mainContent">
+        <h1>Welcome to Solana Wallet Manager</h1>
+    </div>
+
+    <script>
+        const tokenKey = 'authToken';
+        const mainContent = document.getElementById('mainContent');
+
+        // Show the registration form
+        function showRegisterForm() {
+            mainContent.innerHTML = `
+                <h2>Register</h2>
+                <input type="text" id="registerUsername" placeholder="Enter username">
+                <input type="password" id="registerPassword" placeholder="Enter password">
+                <button onclick="register()">Register</button>
+            `;
+        }
+
+        async function register() {
+            const username = document.getElementById('registerUsername').value;
+            const password = document.getElementById('registerPassword').value;
+
+            const response = await fetch('/register', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username, password }),
+            });
+
+            const data = await response.json();
+            alert(data.message || 'Registered successfully!');
+        }
+
+        // Show the login form
+        function showLoginForm() {
+            mainContent.innerHTML = `
+                <h2>Login</h2>
+                <input type="text" id="loginUsername" placeholder="Enter username">
+                <input type="password" id="loginPassword" placeholder="Enter password">
+                <button onclick="login()">Login</button>
+            `;
+        }
+
+        async function login() {
+            const username = document.getElementById('loginUsername').value;
+            const password = document.getElementById('loginPassword').value;
+
+            const response = await fetch('/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username, password }),
+            });
+
+            const data = await response.json();
+            if (response.ok) {
+                localStorage.setItem(tokenKey, data.token);
+                alert(data.message || 'Login successful!');
+                showWalletInfo();
+            } else {
+                alert(data.error || 'Login failed.');
+            }
+        }
+
+        // Show the wallet info
+        async function showWalletInfo() {
+            const token = localStorage.getItem(tokenKey);
+            const response = await fetch('/wallet', {
+                headers: { Authorization: `Bearer ${token}` },
+            });
+
+            const data = await response.json();
+            if (response.ok) {
+                mainContent.innerHTML = `
+                    <h2>Your Wallet</h2>
+                    <p><strong>Public Key:</strong> ${data.publicKey}</p>
+                    <p><strong>Balance:</strong> <span id="balance">Loading...</span></p>
+                    <button onclick="withdraw()">Withdraw SOL</button>
+                    <button onclick="fetchBalance()">Refresh Balance</button>
+                `;
+                fetchBalance();
+            } else {
+                alert(data.error || 'Failed to load wallet.');
+            }
+        }
+
+        async function fetchBalance() {
+            const token = localStorage.getItem(tokenKey);
+            const response = await fetch('/balance', {
+                headers: { Authorization: `Bearer ${token}` },
+            });
+
+            const data = await response.json();
+            if (response.ok) {
+                document.getElementById('balance').textContent = `${data.balance} SOL`;
+            } else {
+                document.getElementById('balance').textContent = 'Error fetching balance.';
+            }
+        }
+
+        async function withdraw() {
+            const token = localStorage.getItem(tokenKey);
+            const recipient = prompt('Enter recipient public key:');
+            const amount = parseFloat(prompt('Enter amount to withdraw (SOL):'));
+
+            const response = await fetch('/withdraw', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${token}`,
+                },
+                body: JSON.stringify({ recipient, amount }),
+            });
+
+            const data = await response.json();
+            if (response.ok) {
+                alert('Withdrawal successful!');
+                fetchBalance();
+            } else {
+                alert(data.error || 'Failed to withdraw.');
+            }
+        }
+
+        // Show the Rock Paper Scissors game
+        function showRPSGame() {
+            mainContent.innerHTML = `
+                <h2>Rock Paper Scissors</h2>
+                <button onclick="createRPSRoom()">Create Room</button>
+                <div id="rooms"></div>
+            `;
+            loadRPSRooms();
+        }
+
+        async function createRPSRoom() {
+            const token = localStorage.getItem(tokenKey);
+            const betAmount = parseFloat(prompt('Enter bet amount (SOL):'));
+            const choice = prompt('Choose your hand (rock, paper, scissors):');
+
+            const response = await fetch('/create-room', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${token}`,
+                },
+                body: JSON.stringify({ creatorChoice: choice, betAmount }),
+            });
+
+            const data = await response.json();
+            if (response.ok) {
+                alert('Room created!');
+                loadRPSRooms();
+            } else {
+                alert(data.error || 'Failed to create room.');
+            }
+        }
+
+        async function loadRPSRooms() {
+            const token = localStorage.getItem(tokenKey);
+            const response = await fetch('/rooms', {
+                headers: { Authorization: `Bearer ${token}` },
+            });
+
+            const rooms = await response.json();
+            const roomsDiv = document.getElementById('rooms');
+            roomsDiv.innerHTML = rooms
+                .map(
+                    (room) =>
+                        `<div>
+                            <p>Room ID: ${room.roomId}</p>
+                            <p>Creator: ${room.creator}</p>
+                            <p>Bet Amount: ${room.betAmount} SOL</p>
+                            <p>Winner: ${room.result || 'Pending'}</p>
+                        </div>`
+                )
+                .join('');
+        }
+
+        document.getElementById('registerMenu').addEventListener('click', showRegisterForm);
+        document.getElementById('loginMenu').addEventListener('click', showLoginForm);
+        document.getElementById('walletMenu').addEventListener('click', showWalletInfo);
+        document.getElementById('rpsMenu').addEventListener('click', showRPSGame);
+
+        // Automatically load wallet info if logged in
+        if (localStorage.getItem(tokenKey)) showWalletInfo();
+    </script>
+</body>
+</html>
